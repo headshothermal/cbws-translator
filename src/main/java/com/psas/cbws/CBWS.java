@@ -197,6 +197,6 @@ public class CBWS {
         if (index < 0 || index >= functions.size()) return;
 
         final Function function = functions.get(index);
-        System.out.printf("%d. %s%n", index, function);
+        System.out.printf("%2d. %s", index, function);
     }
 }

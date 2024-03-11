@@ -69,6 +69,37 @@ public class Translator {
         return String.format("%08X", value);
     }
 
+    /**
+     * Identifies the function label by converting the hex to ASCII and using a regex pattern to find the label.
+     *
+     * @param hex The hex to parse.
+     *
+     * @return The function label.
+     */
+    protected static String identifyFunctionLabel(final String hex) {
+        // Initialize pattern to find function label.
+        // The regex specifies that the label must contain only letters in UpperCamelCase format.
+        final Pattern pattern = Pattern.compile("([A-Z][a-z]+)+");
+
+        // Convert hex string to ASCII.
+        final String ascii;
+        try { ascii = new String(decodeHex(hex), StandardCharsets.UTF_8); }
+        catch (final DecoderException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return UNKNOWN_FUNCTION;  // Unreachable but compiler still requires a return to us ascii var later.
+        }
+
+        // Iterate over matches until a function label is found.
+        final Matcher matcher = pattern.matcher(ascii);
+        while (matcher.find()) {
+            // If match length is less than 4, assume it is not a function label.
+            if (matcher.end() - matcher.start() < 4) continue;
+            return ascii.substring(matcher.start(), matcher.end());
+        }
+        return UNKNOWN_FUNCTION;
+    }
+
     /** Reference to file being translated. */
     private final CBWS cbws;
 
@@ -132,7 +163,7 @@ public class Translator {
                 // If EOF reached, append final byte & match remaining hex.
                 if (index + 2 >= hex.length()) {
                     builder.append(hex, index, index + 2);
-                    functions.add(matchFunctionLabel(builder.toString()));
+                    addFunction(functions, builder.toString());
 
                     // Functions are execute in reverse order of how they appear in the file. Reverse list to reflect true order.
                     Collections.reverse(functions);
@@ -147,12 +178,12 @@ public class Translator {
                         builder.append(hex, index, index + 8);
 
                         // Match current function & move on to next.
-                        functions.add(matchFunctionLabel(builder.toString()));
+                        addFunction(functions, builder.toString());
                         index += 8;
                         break;
                     }
                     // Otherwise, the end of the current function has been reached.
-                    functions.add(matchFunctionLabel(builder.toString()));
+                    addFunction(functions, builder.toString());
                     break;
                 }
 
@@ -164,34 +195,8 @@ public class Translator {
         }
     }
 
-    /**
-     * Identifies the function label by converting the hex to ASCII and using a regex pattern to find the label.
-     *
-     * @param hex The hex to parse.
-     *
-     * @return The function label.
-     */
-    protected final String identifyFunctionLabel(final String hex) {
-        // Initialize pattern to find function label.
-        // The regex specifies that the label must contain only letters in UpperCamelCase format.
-        final Pattern pattern = Pattern.compile("([A-Z][a-z]+)+");
-
-        // Convert hex string to ASCII.
-        final String ascii;
-        try { ascii = new String(decodeHex(hex), StandardCharsets.UTF_8); }
-        catch (final DecoderException e) {
-            e.printStackTrace();
-            System.exit(1);
-            return UNKNOWN_FUNCTION;  // Unreachable but compiler still requires a return to us ascii var later.
-        }
-
-        // Iterate over matches until a function label is found.
-        final Matcher matcher = pattern.matcher(ascii);
-        while (matcher.find()) {
-            // If match length is less than 4, assume it is not a function label.
-            if (matcher.end() - matcher.start() < 4) continue;
-            return ascii.substring(matcher.start(), matcher.end());
-        }
-        return UNKNOWN_FUNCTION;
+    private void addFunction(final ArrayList<Function> functions, final String hex) {
+        final String label = identifyFunctionLabel(hex);
+        functions.add(new Function(label, hex, cbws));
     }
 }

@@ -28,6 +28,7 @@ public class Main {
     }
 
     private static void promptGlobalOptions(final CBWS cbws) {
+        System.out.println();
         System.out.println("""
                 Options:
                     1: Display file hex.

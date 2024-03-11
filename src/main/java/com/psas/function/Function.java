@@ -16,7 +16,10 @@ public class Function {
     protected static final String UNKNOWN = "Unknown";
 
     /** Hex string for setting numerical attribute. */
-    protected static final String NUMERICAL_ATTRIBUTE = "77300004";
+    protected static final String NUMERICAL_ATTRIBUTE1 = "77300004";
+
+    /** Hex string for setting numerical attribute. */
+    protected static final String NUMERICAL_ATTRIBUTE2 = "90070004";
 
     /** Hex string for setting hit reaction attribute. */
     protected static final String HIT_REACTION = "48A40004";
@@ -134,7 +137,7 @@ public class Function {
      * @param hex The function hex as a string.
      * @param cbws The file containing the function.
      */
-    protected Function(final String label, final String hex, final CBWS cbws) {
+    public Function(final String label, final String hex, final CBWS cbws) {
         if (!hex.startsWith("00000003"))
             throw new IllegalArgumentException(String.format(
                     "Invalid header bytes for function hex. Expected \"00000003\" but found \"%s\".",
@@ -193,7 +196,7 @@ public class Function {
         final StringBuilder builder = new StringBuilder(String.format("%s%n", label));
         for (int j = 0; j < attributes.size(); j++) {
             final Attribute attribute = attributes.get(j);
-            builder.append(String.format("    %d. %s: %s%n", j, attribute.name(), attribute.value()));
+            builder.append(String.format("    %2d. %s: %s%n", j, attribute.name(), attribute.value()));
         }
         return builder.toString();
     }
@@ -216,13 +219,21 @@ public class Function {
     private void identifyNumericalAttributes(String hex) {
         while (true) {
             // Find 1st index of hex string that indicates numerical attribute is being set.
-            final int startIndex = hex.indexOf(NUMERICAL_ATTRIBUTE);
+            final int startIndex;
+            switch (label) {
+                case "PlayRate" -> startIndex = hex.indexOf(NUMERICAL_ATTRIBUTE2);
+                default -> startIndex = hex.indexOf(NUMERICAL_ATTRIBUTE1);
+            }
 
             // If no attribute is being set, abort.
             if (startIndex < 0) return;
 
             // Attribute value hex will be the next four bytes.
-            final int valueStartIndex = startIndex + (NUMERICAL_ATTRIBUTE.length());
+            final int valueStartIndex;
+            switch (label) {
+                case "PlayRate" -> valueStartIndex = startIndex + NUMERICAL_ATTRIBUTE2.length();
+                default -> valueStartIndex = startIndex + NUMERICAL_ATTRIBUTE1.length();
+            }
             final int valueEndIndex = valueStartIndex + 8;
 
             // Attempt to identify attribute type.
@@ -251,6 +262,7 @@ public class Function {
     private String matchNumericalAttributeHex(final String hex) {
         // If function has one known attribute, avoid matching hex.
         switch (label) {
+            case "PlayRate" -> { return "Play Rate"; }
             case "SetArmor" -> { return "Super Armor"; }
         }
 
@@ -320,14 +332,23 @@ public class Function {
     private void modifyNumericalAttribute(final int index) {
         final String currentAttributeHex, newAttributeHex;
         switch (label) {
+            case "PlayRate" -> {
+                // Get current play rate hex.
+                final String currentPlayRateValueHex = getFloatHex(Float.parseFloat(attributes.get(index).value()));
+                currentAttributeHex = String.format("%s%s", NUMERICAL_ATTRIBUTE2, currentPlayRateValueHex);
+
+                // Prompt user for new play rate value.
+                final float newPlayRate = promptIntegerResponse("Enter new play rate value: ");
+                newAttributeHex = String.format("%s%s", NUMERICAL_ATTRIBUTE2, getFloatHex(newPlayRate));
+            }
             case "SetArmor" -> {
-                // Get current armor hex. Index variable is ignored as SetArmor only has one attribute.
-                final String currentArmorValueHex = getFloatHex(Float.parseFloat(attributes.get(0).value()));
-                currentAttributeHex = String.format("%s%s", NUMERICAL_ATTRIBUTE, currentArmorValueHex);
+                // Get current armor hex.
+                final String currentArmorValueHex = getFloatHex(Float.parseFloat(attributes.get(index).value()));
+                currentAttributeHex = String.format("%s%s", NUMERICAL_ATTRIBUTE1, currentArmorValueHex);
 
                 // Prompt user for new armor value.
                 final float newArmor = promptIntegerResponse("Enter new armor value: ");
-                newAttributeHex = String.format("%s%s", NUMERICAL_ATTRIBUTE, getFloatHex(newArmor));
+                newAttributeHex = String.format("%s%s", NUMERICAL_ATTRIBUTE1, getFloatHex(newArmor));
             }
             default -> {
                 // Get reverse map of hex lookup table to match attribute names to their hex values.
