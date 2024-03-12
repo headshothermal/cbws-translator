@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 
+import static com.psas.Main.promptFloatResponse;
 import static com.psas.Main.promptIntegerResponse;
 import static com.psas.translator.Translator.getFloatHex;
 import static com.psas.translator.Translator.getHexFloat;
@@ -338,7 +339,7 @@ public class Function {
                 currentAttributeHex = String.format("%s%s", NUMERICAL_ATTRIBUTE2, currentPlayRateValueHex);
 
                 // Prompt user for new play rate value.
-                final float newPlayRate = promptIntegerResponse("Enter new play rate value: ");
+                final float newPlayRate = promptFloatResponse("Enter new play rate value: ");
                 newAttributeHex = String.format("%s%s", NUMERICAL_ATTRIBUTE2, getFloatHex(newPlayRate));
             }
             case "SetArmor" -> {
@@ -347,7 +348,7 @@ public class Function {
                 currentAttributeHex = String.format("%s%s", NUMERICAL_ATTRIBUTE1, currentArmorValueHex);
 
                 // Prompt user for new armor value.
-                final float newArmor = promptIntegerResponse("Enter new armor value: ");
+                final float newArmor = promptFloatResponse("Enter new armor value: ");
                 newAttributeHex = String.format("%s%s", NUMERICAL_ATTRIBUTE1, getFloatHex(newArmor));
             }
             default -> {
@@ -361,7 +362,7 @@ public class Function {
 
                 // Prompt user to enter new value for attribute.
                 System.out.printf("Current value: %s%n", attributes.get(index).value());
-                final float newValue = promptIntegerResponse("Enter new value: ");
+                final float newValue = promptFloatResponse("Enter new value: ");
                 final String newAttributeValueHex = getFloatHex(newValue);
                 newAttributeHex = String.format("%s%s", reverseLookupTable.get(currentAttributeName), newAttributeValueHex);
             }

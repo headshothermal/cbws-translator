@@ -48,6 +48,7 @@ public class Main {
                 break;
             }
             catch (final InputMismatchException e) {
+                SCANNER.next();
                 System.out.println();
             }
         }
@@ -71,18 +72,36 @@ public class Main {
     }
 
     public static int promptIntegerResponse(final String message) {
-        int index;
+        int input;
         while (true) {
             try {
                 System.out.print(message);
-                index = SCANNER.nextInt();
+                input = SCANNER.nextInt();
                 System.out.println();
                 break;
             }
             catch (final InputMismatchException e) {
+                SCANNER.next();
                 System.out.println();
             }
         }
-        return index;
+        return input;
+    }
+
+    public static float promptFloatResponse(final String message) {
+        float input;
+        while (true) {
+            try {
+                System.out.print(message);
+                input = SCANNER.nextFloat();
+                System.out.println();
+                break;
+            }
+            catch (final InputMismatchException e) {
+                SCANNER.next();
+                System.out.println();
+            }
+        }
+        return input;
     }
 }
