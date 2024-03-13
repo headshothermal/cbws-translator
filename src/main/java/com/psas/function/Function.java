@@ -273,7 +273,7 @@ public class Function {
             final String substring = hex.substring(i);
 
             // Check lookup table for matching hex string.
-            final String match = HEX_LOOKUP_TABLE.get(substring.toUpperCase());
+            final String match = HEX_LOOKUP_TABLE.get(substring);
 
             // If a match was found, return the attribute type.
             if (match != null) return match;
@@ -300,7 +300,7 @@ public class Function {
 
         // Add attribute for reaction type.
         final String attributeName = "Hit Reaction";
-        final String reactionType = HEX_LOOKUP_TABLE.get(reactionHex.toUpperCase());
+        final String reactionType = HEX_LOOKUP_TABLE.get(reactionHex);
         if (reactionType != null)
             attributes.add(new Attribute(attributeName, reactionType));
         else

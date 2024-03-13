@@ -88,7 +88,7 @@ public class CBWS {
             // Get raw bytes from file & store as encoded hex string.
             final byte[] bytes = new byte[(int) cbws.length()];
             stream.read(bytes);
-            hex = encodeHexString(bytes);
+            hex = encodeHexString(bytes).toUpperCase();
 
             // Translate file header.
             fileType = translator.getFileType(hex);
