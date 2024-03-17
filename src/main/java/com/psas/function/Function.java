@@ -72,11 +72,17 @@ public class Function {
     /** Hex string for setting hit reaction to mini launch lift. */
     protected static final String MINI_LAUNCH_LIFT_REACTION = "DDA0DDAE";
 
+    /** Hex string for setting hit reaction to mini launch lift sweep. */
+    protected static final String MINI_LAUNCH_SWEEP_REACTION = "B05D0D35";
+
     /** Hex string for setting hit reaction to shock stun. */
     protected static final String SHOCK_STUN_REACTION = "E9B0D618";
 
     /** Hex string for setting hit reaction to slam down flatten. */
     protected static final String SLAM_DOWN_FLATTEN_REACTION = "45856983"; // Slam down bounce has same value - there must be more that sets that.
+
+    /** Hex string for setting hit reaction to stagger buttdrop. */
+    protected static final String STAGGER_BUTTDROP_REACTION = "80 7B BD 01";
 
     /** Hex string for setting hit reaction to stagger kneel. */
     protected static final String STAGGER_KNEEL_REACTION = "69118031";
@@ -110,8 +116,10 @@ public class Function {
         HEX_LOOKUP_TABLE.put(EJECT_TORNADO_REACTION, "Eject Tornado");
         HEX_LOOKUP_TABLE.put(LIGHT_REACTION_REACTION, "Light Reaction");
         HEX_LOOKUP_TABLE.put(MINI_LAUNCH_LIFT_REACTION, "Mini Launch Lift");
+        HEX_LOOKUP_TABLE.put(MINI_LAUNCH_SWEEP_REACTION, "Mini Launch Sweep");
         HEX_LOOKUP_TABLE.put(SHOCK_STUN_REACTION, "Shock Stun");
         HEX_LOOKUP_TABLE.put(SLAM_DOWN_FLATTEN_REACTION, "Slam Down Flatten");
+        HEX_LOOKUP_TABLE.put(STAGGER_BUTTDROP_REACTION, "Stagger Buttdrop");
         HEX_LOOKUP_TABLE.put(STAGGER_KNEEL_REACTION, "Stagger Kneel");
         HEX_LOOKUP_TABLE.put(TWITCH_REACTION, "Twitch");
         HEX_LOOKUP_TABLE.put(UPPERCUT_LAUNCH_REACTION, "Uppercut Launch");
