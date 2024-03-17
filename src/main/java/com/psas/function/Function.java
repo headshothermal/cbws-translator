@@ -66,6 +66,9 @@ public class Function {
     /** Hex string for setting hit reaction to eject tornado. */
     protected static final String EJECT_TORNADO_REACTION = "FD0B3D76";
 
+    /** Hex string for setting hit reaction to full launch. */
+    protected static final String FULL_LAUNCH_REACTION = "2FC92C27";
+
     /** Hex string for setting hit reaction to light reaction. */
     protected static final String LIGHT_REACTION_REACTION = "B0A526B0"; // C572FE3F
 
@@ -90,9 +93,6 @@ public class Function {
     /** Hex string for setting hit reaction to twitch. */
     protected static final String TWITCH_REACTION = "807BBD01";
 
-    /** Hex string for setting hit reaction to uppercut launch. */
-    protected static final String UPPERCUT_LAUNCH_REACTION = "2FC92C27";
-
 
     /** Lookup table for attribute hex values. */
     protected static final BiMap<String, String> HEX_LOOKUP_TABLE = HashBiMap.create();
@@ -114,6 +114,7 @@ public class Function {
         HEX_LOOKUP_TABLE.put(EJECT_ROLL_REACTION, "Eject Roll");
         HEX_LOOKUP_TABLE.put(EJECT_SPIRAL_REACTION, "Eject Spiral");
         HEX_LOOKUP_TABLE.put(EJECT_TORNADO_REACTION, "Eject Tornado");
+        HEX_LOOKUP_TABLE.put(FULL_LAUNCH_REACTION, "Full Launch");
         HEX_LOOKUP_TABLE.put(LIGHT_REACTION_REACTION, "Light Reaction");
         HEX_LOOKUP_TABLE.put(MINI_LAUNCH_LIFT_REACTION, "Mini Launch Lift");
         HEX_LOOKUP_TABLE.put(MINI_LAUNCH_SWEEP_REACTION, "Mini Launch Sweep");
@@ -122,7 +123,6 @@ public class Function {
         HEX_LOOKUP_TABLE.put(STAGGER_BUTTDROP_REACTION, "Stagger Buttdrop");
         HEX_LOOKUP_TABLE.put(STAGGER_KNEEL_REACTION, "Stagger Kneel");
         HEX_LOOKUP_TABLE.put(TWITCH_REACTION, "Twitch");
-        HEX_LOOKUP_TABLE.put(UPPERCUT_LAUNCH_REACTION, "Uppercut Launch");
     }
 
 
