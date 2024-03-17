@@ -35,7 +35,8 @@ public class Main {
                     2: Display translated file info.
                     3: Analyze a specific function.
                     4: Modify a specific function.
-                    5: Exit the program.
+                    5: Remove a specific function.
+                    6: Exit the program.
                 """
         );
 
@@ -63,11 +64,17 @@ public class Main {
             case 4 -> {
                 int index = promptIntegerResponse("Enter function index: ");
                 cbws.printFunctionInfo(index);
+                System.out.println();
                 final Function function = cbws.getFunction(index);
                 index = promptIntegerResponse("Enter attribute index: ");
                 function.modifyAttribute(index);
             }
-            case 5 -> System.exit(0);
+            case 5 -> {
+                int index = promptIntegerResponse("Enter function index: ");
+                final Function function = cbws.getFunction(index);
+                function.removeFunction();
+            }
+            case 6 -> System.exit(0);
         }
     }
 

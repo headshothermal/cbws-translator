@@ -389,8 +389,8 @@ public class Function {
         final BiMap<String, String> reverseLookupTable = HEX_LOOKUP_TABLE.inverse();
 
         // Get hex value for current hit reaction.
-        final String currentReactionName = attributes.get(index).name();
-        final String currentReactionHex = String.format("%s%s", HIT_REACTION, reverseLookupTable.get(currentReactionName));
+        final String currentReactionType = attributes.get(index).value();
+        final String currentReactionHex = String.format("%s%s", HIT_REACTION, reverseLookupTable.get(currentReactionType));
 
         // Prompt user to select a new hit reaction.
         int selection;
@@ -398,7 +398,7 @@ public class Function {
         while (true) {
             System.out.println("Hit Reactions:");
             for (int i = 0; i < hitReactions.size(); i++)
-                System.out.printf("%d. %s%n", i, hitReactions.get(i));
+                System.out.printf("    %d. %s%n", i, hitReactions.get(i));
             System.out.println();
             selection = promptIntegerResponse("Enter number for hit reaction selection: ");
             if (selection < 0 || selection >= hitReactions.size()) continue;
@@ -406,9 +406,17 @@ public class Function {
         }
 
         // Get hex value for new hit reaction.
-        final String newReactionName = hitReactions.get(selection);
-        final String newReactionHex = String.format("%s%s", HIT_REACTION, reverseLookupTable.get(newReactionName));
+        final String newReactionType = hitReactions.get(selection);
+        final String newReactionHex = String.format("%s%s", HIT_REACTION, reverseLookupTable.get(newReactionType));
+
+        System.out.printf("Replacing current %s reaction %s with %s reaction %s%n", currentReactionType, currentReactionHex, newReactionType, newReactionHex);
 
         cbws.replace(hex, hex.replace(currentReactionHex, newReactionHex));
+    }
+
+    /** Removes the function from the file. */
+    public void removeFunction() {
+        cbws.decrementFunctionCount();
+        cbws.replace(hex, "");
     }
 }

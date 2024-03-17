@@ -79,6 +79,15 @@ public class CBWS {
     }
 
     /**
+     * Returns the file header from the CBWS file.
+     *
+     * @return The file header.
+     */
+    private String getFileHeader() {
+        return hex.substring(0, 32);
+    }
+
+    /**
      * Reads the CBWS file contents and converts it to a hex string. The file contents are then parsed to get header
      * information as well as teh functions contained in the CBWS file.
      */
@@ -171,6 +180,26 @@ public class CBWS {
 
         // After writing, read & parse file again.
         read();
+    }
+
+    /**
+     * Replaces the function count in the CBWS hex string and writes the new value to the file.
+     *
+     * @param functionCount The new function count.
+     */
+    private void setFunctionCount(final int functionCount) {
+        final String oldHex = Translator.getIntHex(this.functionCount);
+        final String newHex = Translator.getIntHex(functionCount);
+        final String newHeader = getFileHeader().replace(oldHex, newHex);
+        hex = newHeader + hex.substring(32);
+        this.functionCount = functionCount;
+    }
+
+    /**
+     * Decrements the function count in the CBWS hex string and writes the new value to the file.
+     */
+    public void decrementFunctionCount() {
+        setFunctionCount(functionCount - 1);
     }
 
     /** Prints CBWS file info to terminal. */
