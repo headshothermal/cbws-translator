@@ -85,7 +85,7 @@ public class Function {
     protected static final String SLAM_DOWN_FLATTEN_REACTION = "45856983"; // Slam down bounce has same value - there must be more that sets that.
 
     /** Hex string for setting hit reaction to stagger buttdrop. */
-    protected static final String STAGGER_BUTTDROP_REACTION = "80 7B BD 01";
+    protected static final String STAGGER_BUTTDROP_REACTION = "807BBD01";
 
     /** Hex string for setting hit reaction to stagger kneel. */
     protected static final String STAGGER_KNEEL_REACTION = "69118031";
