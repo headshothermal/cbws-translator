@@ -2,7 +2,6 @@ package com.psas;
 
 import com.psas.cbws.CBWS;
 import com.psas.function.Function;
-import com.psas.translator.Translator;
 
 import java.io.FileNotFoundException;
 import java.util.InputMismatchException;
@@ -31,12 +30,23 @@ public class Main {
         System.out.println();
         System.out.println("""
                 Options:
-                    1: Display file hex.
-                    2: Display translated file info.
-                    3: Analyze a specific function.
-                    4: Modify a specific function.
-                    5: Remove a specific function.
-                    6: Exit the program.
+                     1: Display file hex.
+                     2: Display translated file info.
+                     3: Display file header.
+                     4: Display frame one functions.
+                     5: Display intermediate functions.
+                     6: Display final frame functions.
+                     7: Display impact frame functions (there may be none).
+                     8: Modify a frame one function (not implemented).
+                     9: Modify an intermediate function (not implemented).
+                    10: Modify a final frame function (not implemented).
+                    11: Modify an impact frame function (not implemented).
+                    12: Remove a frame one function (not implemented).
+                    13: Remove an intermediate function (not implemented).
+                    14: Remove a final frame function (not implemented).
+                    15: Remove an impact frame function (not implemented).
+                    
+                    99: Exit the program.
                 """
         );
 
@@ -57,24 +67,13 @@ public class Main {
         switch (selection) {
             case 1 -> System.out.println(cbws.getHex());
             case 2 -> cbws.printFileInfo();
-            case 3 -> {
-                int index = promptIntegerResponse("Enter function index: ");
-                cbws.printFunctionInfo(index);
-            }
-            case 4 -> {
-                int index = promptIntegerResponse("Enter function index: ");
-                cbws.printFunctionInfo(index);
-                System.out.println();
-                final Function function = cbws.getFunction(index);
-                index = promptIntegerResponse("Enter attribute index: ");
-                function.modifyAttribute(index);
-            }
-            case 5 -> {
-                int index = promptIntegerResponse("Enter function index: ");
-                final Function function = cbws.getFunction(index);
-                function.removeFunction();
-            }
-            case 6 -> System.exit(0);
+            case 3 -> cbws.printFileHeader();
+            case 4 -> cbws.printFirstFrameFunctions();
+            case 5 -> cbws.printIntermediateFunctions();
+            case 6 -> cbws.printFinalFrameFunctions();
+            case 7 -> cbws.printImpactFrameFunctions();
+
+            case 99 -> System.exit(0);
         }
     }
 

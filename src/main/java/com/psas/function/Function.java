@@ -3,18 +3,24 @@ package com.psas.function;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.psas.cbws.CBWS;
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.psas.Main.promptFloatResponse;
 import static com.psas.Main.promptIntegerResponse;
-import static com.psas.translator.Translator.getFloatHex;
-import static com.psas.translator.Translator.getHexFloat;
+import static com.psas.cbws.CBWS.getFloatHex;
+import static com.psas.cbws.CBWS.getHexFloat;
+import static com.psas.cbws.CBWS.getHexInt;
+import static org.apache.commons.codec.binary.Hex.decodeHex;
 
 public class Function {
-    /** Generic string for unknown attributes. */
-    protected static final String UNKNOWN = "Unknown";
+    /** Generic string for error handling. */
+    protected static final String UNKNOWN = "Unknown", UNKNOWN_FUNCTION = "Unknown Function";
 
     /** Hex string for setting numerical attribute. */
     protected static final String NUMERICAL_ATTRIBUTE1 = "77300004";
@@ -81,8 +87,11 @@ public class Function {
     /** Hex string for setting hit reaction to shock stun. */
     protected static final String SHOCK_STUN_REACTION = "E9B0D618";
 
+    /*
+    There is a secondary 4-byte string occurring after the hit reaction that determines slam-down bounce/flatten.
+     */
     /** Hex string for setting hit reaction to slam down flatten. */
-    protected static final String SLAM_DOWN_FLATTEN_REACTION = "45856983"; // Slam down bounce has same value - there must be more that sets that.
+    protected static final String SLAM_DOWN_FLATTEN_REACTION = "45856983";
 
     /** Hex string for setting hit reaction to stagger buttdrop. */
     protected static final String STAGGER_BUTTDROP_REACTION = "E4D46FCD";
@@ -125,6 +134,37 @@ public class Function {
         HEX_LOOKUP_TABLE.put(TWITCH_REACTION, "Twitch");
     }
 
+    /**
+     * Identifies the function label by converting the hex to ASCII and using a regex pattern to find the label.
+     *
+     * @param hex The hex to parse.
+     *
+     * @return The function label.
+     */
+    protected static String identifyFunctionLabel(final String hex) {
+        // Initialize pattern to find function label.
+        // The regex specifies that the label must contain only letters in UpperCamelCase format.
+        final Pattern pattern = Pattern.compile("([A-Z][a-z]+)+");
+
+        // Convert hex string to ASCII.
+        final String ascii;
+        try { ascii = new String(decodeHex(hex), StandardCharsets.UTF_8); }
+        catch (final DecoderException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return UNKNOWN_FUNCTION;  // Unreachable but compiler still requires a return to us ascii var later.
+        }
+
+        // Iterate over matches until a function label is found.
+        final Matcher matcher = pattern.matcher(ascii);
+        while (matcher.find()) {
+            // If match length is less than 4, assume it is not a function label.
+            if (matcher.end() - matcher.start() < 4) continue;
+            return ascii.substring(matcher.start(), matcher.end());
+        }
+        return UNKNOWN_FUNCTION;
+    }
+
 
     /** List of attributes for this function. */
     protected final ArrayList<Attribute> attributes = new ArrayList<>();
@@ -136,25 +176,25 @@ public class Function {
     protected String hex;
 
     /** The function label. */
-    private final String label;
+    protected final String label;
 
+    /**
+     * The frame this function will execute on. If this value does not respect the frame order in the CBWS file, it
+     * will execute on the previous function's frame.
+     */
+    protected int frame;
 
     /**
      * Creates a generic function instance with a function label.
      *
-     * @param label The function name/label.
      * @param hex The function hex as a string.
      * @param cbws The file containing the function.
      */
-    public Function(final String label, final String hex, final CBWS cbws) {
-        if (!hex.startsWith("00000003"))
-            throw new IllegalArgumentException(String.format(
-                    "Invalid header bytes for function hex. Expected \"00000003\" but found \"%s\".",
-                    hex.substring(0, 8)
-            ));
-        this.label = label;
+    public Function(final String hex, final CBWS cbws) {
+        this.label = identifyFunctionLabel(hex);
         this.hex = hex;
         this.cbws = cbws;
+        this.frame = getHexInt(hex.substring(hex.length() - 2));
         identifyAttributes();
     }
 
@@ -186,6 +226,15 @@ public class Function {
     }
 
     /**
+     * Returns the frame this function will execute on.
+     *
+     * @return The frame number.
+     */
+    public final int getFrame() {
+        return frame;
+    }
+
+    /**
      * Returns the list of attributes with the specified name.
      *
      * @param name The name of the attribute to search for.
@@ -205,7 +254,7 @@ public class Function {
         final StringBuilder builder = new StringBuilder(String.format("%s%n", label));
         for (int j = 0; j < attributes.size(); j++) {
             final Attribute attribute = attributes.get(j);
-            builder.append(String.format("    %2d. %s: %s%n", j, attribute.name(), attribute.value()));
+            builder.append(String.format("        %2d. %s: %s%n", j, attribute.name(), attribute.value()));
         }
         return builder.toString();
     }
