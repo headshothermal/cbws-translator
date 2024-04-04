@@ -13,9 +13,7 @@ import java.util.regex.Pattern;
 
 import static com.psas.Main.promptFloatResponse;
 import static com.psas.Main.promptIntegerResponse;
-import static com.psas.cbws.CBWS.getFloatHex;
-import static com.psas.cbws.CBWS.getHexFloat;
-import static com.psas.cbws.CBWS.getHexInt;
+import static com.psas.cbws.CBWS.*;
 import static org.apache.commons.codec.binary.Hex.decodeHex;
 
 public class Function {
@@ -182,7 +180,7 @@ public class Function {
      * The frame this function will execute on. If this value does not respect the frame order in the CBWS file, it
      * will execute on the previous function's frame.
      */
-    protected int frame;
+    protected byte frame;
 
     /**
      * Creates a generic function instance with a function label.
@@ -194,7 +192,7 @@ public class Function {
         this.label = identifyFunctionLabel(hex);
         this.hex = hex;
         this.cbws = cbws;
-        this.frame = getHexInt(hex.substring(hex.length() - 2));
+        this.frame = (byte) getHexInt(hex.substring(hex.length() - 2));
         identifyAttributes();
     }
 
@@ -230,7 +228,7 @@ public class Function {
      *
      * @return The frame number.
      */
-    public final int getFrame() {
+    public final byte getFrame() {
         return frame;
     }
 
@@ -249,6 +247,16 @@ public class Function {
         return attributes;
     }
 
+    /**
+     * Sets the frame this function will execute on. The function hex will be updated to reflect the new frame.
+     *
+     * @param frame The frame number.
+     */
+    public void setFrame(final byte frame) {
+        this.frame = frame;
+        hex = hex.substring(0, hex.length() - 2) + getByteHex(frame);
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder(String.format("%s%n", label));
@@ -259,6 +267,7 @@ public class Function {
         return builder.toString();
     }
 
+    /** Identifies attributes for this function. */
     protected void identifyAttributes() {
         // Always attempt to identify numerical attributes first.
         identifyNumericalAttributes(hex);
@@ -425,7 +434,7 @@ public class Function {
             }
         }
 
-        cbws.replace(hex, hex.replace(currentAttributeHex, newAttributeHex));
+        hex = hex.replaceFirst(currentAttributeHex, newAttributeHex);
     }
 
     /**
@@ -458,14 +467,6 @@ public class Function {
         final String newReactionType = hitReactions.get(selection);
         final String newReactionHex = String.format("%s%s", HIT_REACTION, reverseLookupTable.get(newReactionType));
 
-        System.out.printf("Replacing current %s reaction %s with %s reaction %s%n", currentReactionType, currentReactionHex, newReactionType, newReactionHex);
-
-        cbws.replace(hex, hex.replace(currentReactionHex, newReactionHex));
-    }
-
-    /** Removes the function from the file. */
-    public void removeFunction() {
-        cbws.decrementFunctionCount();
-        cbws.replace(hex, "");
+        hex = hex.replaceFirst(currentReactionHex, newReactionHex);
     }
 }
