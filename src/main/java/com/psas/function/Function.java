@@ -389,6 +389,10 @@ public class Function {
             case "Hit Reaction" -> modifyHitReaction(index);
             default -> modifyNumericalAttribute(index);
         }
+
+        // Update attributes list.
+        attributes.clear();
+        identifyAttributes();
     }
 
     /**

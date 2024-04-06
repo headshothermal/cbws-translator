@@ -66,6 +66,10 @@ public class CBWS {
         return String.format("%08X", value);
     }
 
+    public static String getByteHex(final byte value) {
+        return String.format("%02X", value);
+    }
+
     /**
      * Finds the nth occurrence of a substring in a string.
      *
@@ -125,6 +129,58 @@ public class CBWS {
 
     public final String getHex() {
         return hex;
+    }
+
+    /**
+     * Gets the first frame function at the specified index.
+     *
+     * @param index The index of the first frame function to get.
+     *
+     * @return The first frame function at the specified index or the first first frame function if the index is out of bounds.
+     */
+    public Function getFirstFrameFunction(final int index) {
+        if (index < 0 || index >= firstFrameFunctions.size())
+            return firstFrameFunctions.get(0);
+        return firstFrameFunctions.get(index);
+    }
+
+    /**
+     * Gets the intermediate function at the specified index.
+     *
+     * @param index The index of the intermediate function to get.
+     *
+     * @return The intermediate function at the specified index or the first intermediate function if the index is out of bounds.
+     */
+    public Function getIntermediateFunction(final int index) {
+        if (index < 0 || index >= intermediateFunctions.size())
+            return intermediateFunctions.get(0);
+        return intermediateFunctions.get(index);
+    }
+
+    /**
+     * Gets the final frame function at the specified index.
+     *
+     * @param index The index of the final frame function to get.
+     *
+     * @return The final frame function at the specified index or the first final frame function if the index is out of bounds.
+     */
+    public Function getFinalFrameFunction(final int index) {
+        if (index < 0 || index >= finalFrameFunctions.size())
+            return finalFrameFunctions.get(0);
+        return finalFrameFunctions.get(index);
+    }
+
+    /**
+     * Gets the impact frame function at the specified index.
+     *
+     * @param index The index of the impact frame function to get.
+     *
+     * @return The impact frame function at the specified index or the first impact frame function if the index is out of bounds.
+     */
+    public Function getImpactFrameFunction(final int index) {
+        if (index < 0 || index >= impactFrameFunctions.size())
+            return impactFrameFunctions.get(0);
+        return impactFrameFunctions.get(index);
     }
 
     /** Parses the file header to get the file type, function count, and unknown header values. */
@@ -289,19 +345,6 @@ public class CBWS {
     }
 
     /**
-     * Gets the function at the specified index.
-     *
-     * @param index The index of the function.
-     *
-     * @return The function at the specified index or the 1st function in the file if an invalid index was specified.
-     */
-    public final Function getFunction(final int index) {
-        if (index >= 0 && index < intermediateFunctions.size())
-            return intermediateFunctions.get(index);
-        return intermediateFunctions.get(0);
-    }
-
-    /**
      * Reads the CBWS file contents and converts it to a hex string. The file contents are then parsed to get header
      * information as well as the functions contained in the CBWS file.
      */
@@ -324,20 +367,11 @@ public class CBWS {
     }
 
     /**
-     * Replaces the specified text in the CBWS hex string and writes the new value to the file.
-     *
-     * @param original The original hex string.
-     * @param replacement The replacement hex string.
+     * Overwrites the CBWS file with the contents of this object.
      */
-    public void replace(final String original, final String replacement) {
-        // Verify replacement string exists in file.
-        if (!hex.contains(original)) {
-            System.out.printf("File \"%s\" does not contain hex string \"%s\".%n", cbws.getAbsolutePath(), original);
-            return;
-        }
-
-        // Update hex string with replacement text.
-        hex = hex.replace(original, replacement);
+    public void write() {
+        // Update hex string to reflect changes made to functions.
+        updateHex();
 
         // Open file.
         try (final FileOutputStream stream = new FileOutputStream(cbws, false)) {
@@ -354,37 +388,15 @@ public class CBWS {
         read();
     }
 
-    /**
-     * Replaces the nth occurrence of the specified text in the CBWS hex string and writes the new value to the file.
-     *
-     * @param original The original hex string.
-     * @param replacement The replacement hex string.
-     * @param n The occurrence to replace.
-     */
-    public void replaceNthOccurrence(final String original, final String replacement, final int n) {
-        // Find nth occurrence of original string.
-        final int index = findNthOccurrence(hex, original, n);
-        if (index < 0) {
-            System.out.printf("File \"%s\" does not contain %d occurrences of hex string \"%s\".%n", cbws.getAbsolutePath(), n, original);
-            return;
-        }
-
-        // Update hex string with replacement text.
-        hex = hex.substring(0, index) + replacement + hex.substring(index + original.length());
-
-        // Open file.
-        try (final FileOutputStream stream = new FileOutputStream(cbws, false)) {
-            // Convert hex string to raw bytes & write to file.
-            final byte[] bytes = decodeHex(hex);
-            stream.write(bytes);
-        }
-        catch (final IOException | DecoderException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        // After writing, read & parse file again.
-        read();
+    /** Updates function hex to reflect changes made to its functions. */
+    private void updateHex() {
+        final StringBuilder builder = new StringBuilder(getFileHeader());
+        for (final Function function : intermediateFunctions) builder.append(function.getHex());
+        builder.append(finalFrameFunctions.get(0).getHex());
+        for (final Function function : firstFrameFunctions) builder.append(function.getHex());
+        for (int i = 1; i < finalFrameFunctions.size(); i++) builder.append(finalFrameFunctions.get(i).getHex());
+        for (final Function function : impactFrameFunctions) builder.append(function.getHex());
+        hex = builder.toString();
     }
 
     /**
