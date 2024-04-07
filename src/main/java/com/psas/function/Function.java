@@ -85,11 +85,8 @@ public class Function {
     /** Hex string for setting hit reaction to shock stun. */
     protected static final String SHOCK_STUN_REACTION = "E9B0D618";
 
-    /*
-    There is a secondary 4-byte string occurring after the hit reaction that determines slam-down bounce/flatten.
-     */
     /** Hex string for setting hit reaction to slam down flatten. */
-    protected static final String SLAM_DOWN_FLATTEN_REACTION = "45856983";
+    protected static final String SLAM_DOWN_REACTION = "45856983";
 
     /** Hex string for setting hit reaction to stagger buttdrop. */
     protected static final String STAGGER_BUTTDROP_REACTION = "E4D46FCD";
@@ -105,7 +102,6 @@ public class Function {
     protected static final BiMap<String, String> HEX_LOOKUP_TABLE = HashBiMap.create();
     // Populate lookup table.
     static {
-        // Hit Volume attributes.
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_LENGTH, "Length");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_HEIGHT, "Height");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_X_OFFSET, "X Offset");
@@ -114,22 +110,26 @@ public class Function {
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_VERTICAL_KNOCK_BACK, "Vertical Knock Back");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_AP_SIPHON, "AP Siphon");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_AP_GENERATION, "AP Generation");
+    }
 
-        // Hit Reaction types.
-        HEX_LOOKUP_TABLE.put(BOUNCE_REACTION, "Bounce");
-        HEX_LOOKUP_TABLE.put(CRUMPLE_REACTION, "Crumple");
-        HEX_LOOKUP_TABLE.put(EJECT_ROLL_REACTION, "Eject Roll");
-        HEX_LOOKUP_TABLE.put(EJECT_SPIRAL_REACTION, "Eject Spiral");
-        HEX_LOOKUP_TABLE.put(EJECT_TORNADO_REACTION, "Eject Tornado");
-        HEX_LOOKUP_TABLE.put(FULL_LAUNCH_REACTION, "Full Launch");
-        HEX_LOOKUP_TABLE.put(LIGHT_REACTION_REACTION, "Light Reaction");
-        HEX_LOOKUP_TABLE.put(MINI_LAUNCH_LIFT_REACTION, "Mini Launch Lift");
-        HEX_LOOKUP_TABLE.put(MINI_LAUNCH_SWEEP_REACTION, "Mini Launch Sweep");
-        HEX_LOOKUP_TABLE.put(SHOCK_STUN_REACTION, "Shock Stun");
-        HEX_LOOKUP_TABLE.put(SLAM_DOWN_FLATTEN_REACTION, "Slam Down Flatten");
-        HEX_LOOKUP_TABLE.put(STAGGER_BUTTDROP_REACTION, "Stagger Buttdrop");
-        HEX_LOOKUP_TABLE.put(STAGGER_KNEEL_REACTION, "Stagger Kneel");
-        HEX_LOOKUP_TABLE.put(TWITCH_REACTION, "Twitch");
+    /** Lookup table for hit reaction hex values. */
+    protected static final BiMap<String, String> REACTION_LOOKUP_TABLE = HashBiMap.create();
+    // Populate lookup table.
+    {
+        REACTION_LOOKUP_TABLE.put(BOUNCE_REACTION, "Bounce");
+        REACTION_LOOKUP_TABLE.put(CRUMPLE_REACTION, "Crumple");
+        REACTION_LOOKUP_TABLE.put(EJECT_ROLL_REACTION, "Eject Roll");
+        REACTION_LOOKUP_TABLE.put(EJECT_SPIRAL_REACTION, "Eject Spiral");
+        REACTION_LOOKUP_TABLE.put(EJECT_TORNADO_REACTION, "Eject Tornado");
+        REACTION_LOOKUP_TABLE.put(FULL_LAUNCH_REACTION, "Full Launch");
+        REACTION_LOOKUP_TABLE.put(LIGHT_REACTION_REACTION, "Light Reaction");
+        REACTION_LOOKUP_TABLE.put(MINI_LAUNCH_LIFT_REACTION, "Mini Launch Lift");
+        REACTION_LOOKUP_TABLE.put(MINI_LAUNCH_SWEEP_REACTION, "Mini Launch Sweep");
+        REACTION_LOOKUP_TABLE.put(SHOCK_STUN_REACTION, "Shock Stun");
+        REACTION_LOOKUP_TABLE.put(SLAM_DOWN_REACTION, "Slam Down");
+        REACTION_LOOKUP_TABLE.put(STAGGER_BUTTDROP_REACTION, "Stagger Buttdrop");
+        REACTION_LOOKUP_TABLE.put(STAGGER_KNEEL_REACTION, "Stagger Kneel");
+        REACTION_LOOKUP_TABLE.put(TWITCH_REACTION, "Twitch");
     }
 
     /**
@@ -367,8 +367,18 @@ public class Function {
         // Add attribute for reaction type.
         final String attributeName = "Hit Reaction";
         final String reactionType = HEX_LOOKUP_TABLE.get(reactionHex);
-        if (reactionType != null)
-            attributes.add(new Attribute(attributeName, reactionType));
+        if (reactionType != null) {
+            if (reactionHex.equals(SLAM_DOWN_REACTION)) {
+                // Determine slam-down bounce/flatten.
+                final int slamDownStartIndex = reactionEndIndex + 12;
+                final String slamDownHex = hex.substring(slamDownStartIndex, slamDownStartIndex + 8);
+                if (slamDownHex.equals("00000000"))
+                    attributes.add(new Attribute(attributeName, String.format(reactionType, "Flatten")));
+                else
+                    attributes.add(new Attribute(attributeName, String.format(reactionType, "Bounce")));
+            }
+            else attributes.add(new Attribute(attributeName, reactionType));
+        }
         else
             attributes.add(new Attribute(attributeName, UNKNOWN));
 
@@ -448,7 +458,7 @@ public class Function {
      */
     private void modifyHitReaction(final int index) {
         // Get reverse map of hex lookup table to match reaction names to their hex values.
-        final BiMap<String, String> reverseLookupTable = HEX_LOOKUP_TABLE.inverse();
+        final BiMap<String, String> reverseLookupTable = REACTION_LOOKUP_TABLE.inverse();
 
         // Get hex value for current hit reaction.
         final String currentReactionType = attributes.get(index).value();
@@ -456,7 +466,7 @@ public class Function {
 
         // Prompt user to select a new hit reaction.
         int selection;
-        final ArrayList<String> hitReactions = new ArrayList<>(HEX_LOOKUP_TABLE.values());
+        final ArrayList<String> hitReactions = new ArrayList<>(REACTION_LOOKUP_TABLE.values());
         while (true) {
             System.out.println("Hit Reactions:");
             for (int i = 0; i < hitReactions.size(); i++)
