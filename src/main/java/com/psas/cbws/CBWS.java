@@ -469,11 +469,12 @@ public class CBWS {
             if (currentFunction.getLabel().equals("PlayRate"))
                 playRate = Float.parseFloat(currentFunction.getAttributes().get(0).value());
 
-            if (previousFunction != null)
+            if (previousFunction != null) {
                 if (currentFunction.getFrame() != previousFunction.getFrame()) {
                     final int frameDifference = currentFunction.getFrame() - previousFunction.getFrame();
                     currentFrame += Math.round(frameDifference / playRate);
                 }
+            }
 
             // Print function info.
             System.out.printf("    %2d. Frame %d:  %s", i, currentFrame, currentFunction);
