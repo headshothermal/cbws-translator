@@ -455,11 +455,14 @@ public class CBWS {
         System.out.println("Intermediate Functions");
         if (intermediateFunctions.isEmpty()) return;
 
-        // Track frame data.
-        int currentFrame = intermediateFunctions.get(0).getFrame();
-
         // Keep track of play rate to ensure accurate frame data.
         float playRate = 1.0f;
+        for (final Function function : firstFrameFunctions)
+            if (function.getLabel().equals("PlayRate"))
+                playRate = Float.parseFloat(function.getAttributes().get(0).value());
+
+        // Track frame data.
+        int currentFrame = Math.round(intermediateFunctions.get(0).getFrame() / playRate);
 
         for (int i = 0; i < intermediateFunctions.size(); i++) {
             // Determine current frame.
