@@ -229,7 +229,7 @@ public class CBWS {
 
         Intermediate functions are executed in top-to-bottom order as they appear in the file.
          */
-        final Pattern intermediateFunctionEndPattern = Pattern.compile("0{30}[A-F|0-9][A-F|1-9]$");
+        final Pattern intermediateFunctionEndPattern = Pattern.compile("0{30}([A-F|0-9][A-F|1-9]$|[A-F|1-9][A-F|0-9]$)");
 
         /*
         Regex pattern for identifying end of first/final frame function.
