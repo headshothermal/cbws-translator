@@ -269,13 +269,15 @@ public class Function {
 
     /** Identifies attributes for this function. */
     protected void identifyAttributes() {
-        // Always attempt to identify numerical attributes first.
+        // Always attempt to identify numerical & string attributes.
         identifyNumericalAttributes(hex);
 
         // Check for additional attributes on case-by-case basis.
         switch (label) {
             case "EnableHitVolume" -> identifyHitReactionType(hex);
         }
+
+        identifyStringAttributes();
     }
 
     /**
@@ -366,7 +368,7 @@ public class Function {
 
         // Add attribute for reaction type.
         final String attributeName = "Hit Reaction";
-        final String reactionType = HEX_LOOKUP_TABLE.get(reactionHex);
+        final String reactionType = REACTION_LOOKUP_TABLE.get(reactionHex);
         if (reactionType != null) {
             if (reactionHex.equals(SLAM_DOWN_REACTION)) {
                 // Determine slam-down bounce/flatten.
@@ -385,6 +387,37 @@ public class Function {
         // If attack causes multiple reactions, add them all.
         final String remainingHex = hex.substring(reactionEndIndex);
         identifyHitReactionType(remainingHex);
+    }
+
+    private void identifyStringAttributes() {
+        // Initialize pattern to find string values.
+        final Pattern pattern = Pattern.compile("([A-Z][a-z]+|[A-Z]+|[a-z]+|_|[0-9]+)+");
+
+        // Convert hex string to ASCII.
+        final String ascii;
+        try { ascii = new String(decodeHex(hex), StandardCharsets.UTF_8); }
+        catch (final DecoderException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return;  // Unreachable but compiler still requires a return to use ascii var later.
+        }
+
+        final Matcher matcher = pattern.matcher(ascii);
+        switch (label) {
+            default -> {
+                // Iterate over matches until a function label is found.
+                int matchCount = 0;
+                while (matcher.find()) {
+                    // If match length is less than 5, assume it is not a function label.
+                    if (matcher.end() - matcher.start() < 5) continue;
+                    final String match = ascii.substring(matcher.start(), matcher.end());
+                    matchCount++;
+                    if (!match.equals(label))
+                        attributes.add(new Attribute(String.format("String Attribute %d", matchCount), match));
+                }
+
+            }
+        }
     }
 
     public final void modifyAttribute(final int index) {
