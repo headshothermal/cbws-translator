@@ -439,6 +439,11 @@ public class CBWS {
         this.frameDelay = frameDelay;
     }
 
+    public void changeFunctionIndex(final int oldIndex, final int newIndex) {
+        final Function function = intermediateFunctions.remove(oldIndex);
+        intermediateFunctions.add(newIndex, function);
+    }
+
     /** Prints CBWS file info to terminal. */
     public final void printFileInfo() {
         printFileHeader();

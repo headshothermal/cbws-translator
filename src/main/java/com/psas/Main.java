@@ -153,7 +153,8 @@ public class Main {
                 Options
                     1: Modify function attributes.
                     2: Modify function frame.
-                    3: Remove this function (not implemented).
+                    3: Change function index.
+                    4: Remove this function (not implemented).
                 """
         );
         final int selection = promptIntegerResponse("Enter a selection: ");
@@ -176,6 +177,10 @@ public class Main {
                     function.setFrame((byte) frame);
                     break;
                 }
+            }
+            case 3 -> {
+                final int newIndex = promptIntegerResponse("Enter new function index: ");
+                cbws.changeFunctionIndex(functionIndex, newIndex);
             }
         }
     }
