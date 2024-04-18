@@ -316,7 +316,13 @@ public class CBWS {
                 // Check if current string ends with 16 null bytes.
                 final Matcher firstFinalMatcher = firstFinalFrameFunctionEndPattern.matcher(builder.toString());
                 if (firstFinalMatcher.find()) {
-                    if (firstFrame) {
+                    if (intermediate) {
+                        if (nextFourBytes.equals(FUNCTION_START_BYTES)) {
+                            intermediateFunctions.add(new Function(builder.toString(), this));
+                            break;
+                        }
+                    }
+                    else if (firstFrame) {
                         if (nextFourBytes.equals(FUNCTION_START_BYTES)) {
                             firstFrameFunctions.add(new Function(builder.toString(), this));
                             break;
