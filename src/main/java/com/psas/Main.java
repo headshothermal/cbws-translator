@@ -45,8 +45,9 @@ public class Main {
                     13: Add an intermediate function (not implemented).
                     14: Add a final frame function (not implemented).
                     15: Add an impact frame function (not implemented).
-                    16: Write changes to file.
+                    16: Modify frame delay.
                     
+                    98: Write changes to file.
                     99: Exit the program.
                 """
         );
@@ -78,7 +79,12 @@ public class Main {
             case 10 -> modifyFinalFrameFunction(cbws);
             case 11 -> modifyImpactFrameFunction(cbws);
 
-            case 16 -> cbws.write();
+            case 16 -> {
+                final int frameDelay = promptIntegerResponse("Enter new frame delay: ");
+                cbws.setFrameDelay(frameDelay);
+            }
+
+            case 98 -> cbws.write();
             case 99 -> System.exit(0);
         }
     }

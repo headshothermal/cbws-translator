@@ -104,8 +104,11 @@ public class CBWS {
     /** Integer to store 2nd numerical value in the file header. It represents the number of functions in the file. */
     private int functionCount;
 
-    /** Integer to store the 3rd numerical value in the file header. The value's purpose is unknown. */
-    private int unknownHeaderValue2;
+    /**
+     * Integer to store the 3rd numerical value in the file header. It represents the number of frames to wait before
+     * beginning intermediate function execution.
+     */
+    private int frameDelay;
 
     /** Lists to store functions contained in the file. */
     private final ArrayList<Function>
@@ -199,7 +202,7 @@ public class CBWS {
         functionCount = getHexInt(hex.substring(16, 24));
 
         // Get third header value. Its type is integer & its purpose is unknown. Altering the value seemingly has no effect.
-        unknownHeaderValue2 = getHexInt(hex.substring(24, 32));
+        frameDelay = getHexInt(hex.substring(24, 32));
     }
 
     /**
@@ -411,10 +414,10 @@ public class CBWS {
      * @param functionCount The new function count.
      */
     private void setFunctionCount(final int functionCount) {
-        final String oldHex = getIntHex(this.functionCount);
+        final String oldHeaderHex = hex.substring(0, 32);
         final String newHex = getIntHex(functionCount);
-        final String newHeader = getFileHeader().replace(oldHex, newHex);
-        hex = newHeader + hex.substring(32);
+        final String newHeaderHex = oldHeaderHex.substring(0, 16) + newHex + oldHeaderHex.substring(24);
+        hex = newHeaderHex + hex.substring(32);
         this.functionCount = functionCount;
     }
 
@@ -426,6 +429,14 @@ public class CBWS {
     /** Decrements the function count in the CBWS hex string and writes the new value to the file. */
     public void decrementFunctionCount() {
         setFunctionCount(functionCount - 1);
+    }
+
+    public void setFrameDelay(final int frameDelay) {
+        final String oldHeaderHex = hex.substring(0, 32);
+        final String newHex = getIntHex(frameDelay);
+        final String newHeaderHex = oldHeaderHex.substring(0, 24) + newHex;
+        hex = newHeaderHex + hex.substring(32);
+        this.frameDelay = frameDelay;
     }
 
     /** Prints CBWS file info to terminal. */
@@ -444,8 +455,8 @@ public class CBWS {
                     File Type: %s
                     Unknown Header Value: %d
                     Function Count: %d
-                    Unknown Header Value: %d%n""",
-                fileType, unknownHeaderValue1, functionCount, unknownHeaderValue2
+                    Frame Delay: %d%n""",
+                fileType, unknownHeaderValue1, functionCount, frameDelay
         );
     }
 
