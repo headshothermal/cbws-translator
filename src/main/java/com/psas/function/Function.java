@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +36,9 @@ public class Function {
 
     /** Hex string for setting hit volume height. */
     protected static final String HIT_VOLUME_HEIGHT = "ECEE0E0C001058C7BA280001DCB677300004";
+    
+    /** Hex string for setting hitbox angle. */
+    protected static final String HITBOX_ANGLE = "D00AFAA7001058C7BA280001DCB677300004";
 
     /** Hex string for setting hit volume x offset. */
     protected static final String HIT_VOLUME_X_OFFSET = "FE85D7C9001058C7BA280001DCB677300004";
@@ -104,6 +108,7 @@ public class Function {
     static {
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_LENGTH, "Length");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_HEIGHT, "Height");
+        HEX_LOOKUP_TABLE.put(HITBOX_ANGLE, "Angle");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_X_OFFSET, "X Offset");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_Y_OFFSET, "Y Offset");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_HORIZONTAL_KNOCK_BACK, "Horizontal Knock Back");
@@ -270,28 +275,28 @@ public class Function {
     /** Identifies attributes for this function. */
     protected void identifyAttributes() {
         // Always attempt to identify numerical & string attributes.
-        identifyNumericalAttributes(hex);
+        identifyNumericalAttributes();
+        identifyStringAttributes();
 
         // Check for additional attributes on case-by-case basis.
         switch (label) {
-            case "EnableHitVolume" -> identifyHitReactionType(hex);
+            case "EnableHitVolume" -> identifyHitReactionType();
         }
 
-        identifyStringAttributes();
+        // Sort attributes by index.
+        Collections.sort(attributes);
     }
 
-    /**
-     * Parses hex string to identify numerical attributes and adds them to the attributes list.
-     *
-     * @param hex The hex string to parse.
-     */
-    private void identifyNumericalAttributes(String hex) {
+    /** Parses hex string to identify numerical attributes and adds them to the attributes list. */
+    private void identifyNumericalAttributes() {
+        int substringIndex = 0;
+
         while (true) {
             // Find 1st index of hex string that indicates numerical attribute is being set.
             final int startIndex;
             switch (label) {
-                case "PlayRate" -> startIndex = hex.indexOf(NUMERICAL_ATTRIBUTE2);
-                default -> startIndex = hex.indexOf(NUMERICAL_ATTRIBUTE1);
+                case "PlayRate" -> startIndex = hex.indexOf(NUMERICAL_ATTRIBUTE2, substringIndex);
+                default -> startIndex = hex.indexOf(NUMERICAL_ATTRIBUTE1, substringIndex);
             }
 
             // If no attribute is being set, abort.
@@ -314,10 +319,10 @@ public class Function {
             final String attributeValue = String.valueOf(getHexFloat(valueHex));
 
             // Add attribute.
-            attributes.add(new Attribute(attributeType, attributeValue));
+            attributes.add(new Attribute(attributeType, attributeValue, startIndex));
 
             // Trim string & continue parsing.
-            hex = hex.substring(valueEndIndex);
+            substringIndex = valueEndIndex;
         }
     }
 
@@ -352,46 +357,46 @@ public class Function {
     }
 
     /**
-     * Parses hex string to identify hit reaction type and adds it to the attributes list.
-     *
-     * @param hex The hex string to parse.
-     */
-    private void identifyHitReactionType(final String hex) {
-        // Find index of hex string that indicates hit reaction is being set.
-        final int startIndex = StringUtils.indexOfIgnoreCase(hex, HIT_REACTION);
-        if (startIndex < 0) return;
+     * Parses hex string to identify hit reaction type and adds it to the attributes list. */
+    private void identifyHitReactionType() {
+        int substringIndex = 0;
 
-        // Four bytes define the hit reaction. A byte is two characters
-        final int reactionStartIndex = startIndex + HIT_REACTION.length();
-        final int reactionEndIndex = reactionStartIndex + 8;
-        final String reactionHex = hex.substring(reactionStartIndex, reactionEndIndex);
+        while (true) {
+            // Find index of hex string that indicates hit reaction is being set.
+            final int startIndex = hex.indexOf(HIT_REACTION, substringIndex);
+            if (startIndex < 0) return;
 
-        // Add attribute for reaction type.
-        final String attributeName = "Hit Reaction";
-        final String reactionType = REACTION_LOOKUP_TABLE.get(reactionHex);
-        if (reactionType != null) {
-            if (reactionHex.equals(SLAM_DOWN_REACTION)) {
-                // Determine slam-down bounce/flatten.
-                final int slamDownStartIndex = reactionEndIndex + 12;
-                final String slamDownHex = hex.substring(slamDownStartIndex, slamDownStartIndex + 8);
-                if (slamDownHex.equals("00000000"))
-                    attributes.add(new Attribute(attributeName, String.format(reactionType, "Flatten")));
-                else
-                    attributes.add(new Attribute(attributeName, String.format(reactionType, "Bounce")));
+            // Four bytes define the hit reaction. A byte is two characters
+            final int reactionStartIndex = startIndex + HIT_REACTION.length();
+            final int reactionEndIndex = reactionStartIndex + 8;
+            final String reactionHex = hex.substring(reactionStartIndex, reactionEndIndex);
+
+            // Add attribute for reaction type.
+            final String attributeName = "Hit Reaction";
+            final String reactionType = REACTION_LOOKUP_TABLE.get(reactionHex);
+            if (reactionType != null) {
+                if (reactionHex.equals(SLAM_DOWN_REACTION)) {
+                    // Determine slam-down bounce/flatten.
+                    final int slamDownStartIndex = reactionEndIndex + 12;
+                    final String slamDownHex = hex.substring(slamDownStartIndex, slamDownStartIndex + 8);
+                    if (slamDownHex.equals("00000000"))
+                        attributes.add(new Attribute(attributeName, String.format(reactionType, "Flatten"), startIndex));
+                    else
+                        attributes.add(new Attribute(attributeName, String.format(reactionType, "Bounce"), startIndex));
+                }
+                else attributes.add(new Attribute(attributeName, reactionType, startIndex));
             }
-            else attributes.add(new Attribute(attributeName, reactionType));
-        }
-        else
-            attributes.add(new Attribute(attributeName, UNKNOWN));
+            else
+                attributes.add(new Attribute(attributeName, UNKNOWN, startIndex));
 
-        // If attack causes multiple reactions, add them all.
-        final String remainingHex = hex.substring(reactionEndIndex);
-        identifyHitReactionType(remainingHex);
+            // If attack causes multiple reactions, add them all.
+            substringIndex = reactionEndIndex;
+        }
     }
 
     private void identifyStringAttributes() {
         // Initialize pattern to find string values.
-        final Pattern pattern = Pattern.compile("([A-Z][a-z]+|[A-Z]+|[a-z]+|_|[0-9]+)+");
+        final Pattern pattern = Pattern.compile("([A-Z][a-z]+|[A-Z]+|[a-z]+|_|[0-9]+| +|/+|\\*+)+");
 
         // Convert hex string to ASCII.
         final String ascii;
@@ -413,7 +418,7 @@ public class Function {
                     final String match = ascii.substring(matcher.start(), matcher.end());
                     matchCount++;
                     if (!match.equals(label))
-                        attributes.add(new Attribute(String.format("String Attribute %d", matchCount), match));
+                        attributes.add(new Attribute(String.format("String Attribute %d", matchCount - 1), match, matcher.start()));
                 }
 
             }
