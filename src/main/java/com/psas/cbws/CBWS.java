@@ -444,6 +444,11 @@ public class CBWS {
         intermediateFunctions.add(newIndex, function);
     }
 
+    public void removeIntermediateFunction(final int index) {
+        intermediateFunctions.remove(index);
+        decrementFunctionCount();
+    }
+
     /** Prints CBWS file info to terminal. */
     public final void printFileInfo() {
         printFileHeader();

@@ -27,6 +27,9 @@ public class Function {
     /** Hex string for setting numerical attribute. */
     protected static final String NUMERICAL_ATTRIBUTE2 = "90070004";
 
+    /** Hex string for setting numerical attribute. */
+    protected static final String NUMERICAL_ATTRIBUTE3 = "69250004";
+
     /** Hex string for setting hit reaction attribute. */
     protected static final String HIT_REACTION = "48A40004";
 
@@ -100,6 +103,9 @@ public class Function {
 
     /** Hex string for setting hit reaction to twitch. */
     protected static final String TWITCH_REACTION = "807BBD01";
+    
+    /** Hex string for setting horizontal velocity. */
+    protected static final String HORIZONTAL_VELOCITY = "B50EE7F164D7605E001058C7BA280001DCB677300004";
 
 
     /** Lookup table for attribute hex values. */
@@ -115,6 +121,8 @@ public class Function {
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_VERTICAL_KNOCK_BACK, "Vertical Knock Back");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_AP_SIPHON, "AP Siphon");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_AP_GENERATION, "AP Generation");
+
+        HEX_LOOKUP_TABLE.put(HORIZONTAL_VELOCITY, "Horizontal Velocity");
     }
 
     /** Lookup table for hit reaction hex values. */

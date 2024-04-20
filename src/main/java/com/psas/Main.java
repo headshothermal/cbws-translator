@@ -154,7 +154,8 @@ public class Main {
                     1: Modify function attributes.
                     2: Modify function frame.
                     3: Change function index.
-                    4: Remove this function (not implemented).
+                    4: Remove this function.
+                    5: Cancel.
                 """
         );
         final int selection = promptIntegerResponse("Enter a selection: ");
@@ -182,6 +183,7 @@ public class Main {
                 final int newIndex = promptIntegerResponse("Enter new function index: ");
                 cbws.changeFunctionIndex(functionIndex, newIndex);
             }
+            case 4 -> cbws.removeIntermediateFunction(functionIndex);
         }
     }
 
