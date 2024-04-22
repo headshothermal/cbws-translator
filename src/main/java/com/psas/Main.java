@@ -181,7 +181,7 @@ public class Main {
             }
             case 3 -> {
                 final int newIndex = promptIntegerResponse("Enter new function index: ");
-                cbws.changeFunctionIndex(functionIndex, newIndex);
+                cbws.changeIntermediateFunctionIndex(functionIndex, newIndex);
             }
             case 4 -> cbws.removeIntermediateFunction(functionIndex);
         }

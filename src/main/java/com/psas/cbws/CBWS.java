@@ -201,7 +201,7 @@ public class CBWS {
          */
         functionCount = getHexInt(hex.substring(16, 24));
 
-        // Get third header value. Its type is integer & its purpose is unknown. Altering the value seemingly has no effect.
+        // Get third header value. It is an integer value representing the number of frames to wait before executing intermediate functions.
         frameDelay = getHexInt(hex.substring(24, 32));
     }
 
@@ -216,7 +216,10 @@ public class CBWS {
 
     private void parseFunctions() {
         // Clear function list.
+        firstFrameFunctions.clear();
         intermediateFunctions.clear();
+        finalFrameFunctions.clear();
+        impactFrameFunctions.clear();
 
         // Copy file hex contents.
         String hex = new String(this.hex);
@@ -439,7 +442,7 @@ public class CBWS {
         this.frameDelay = frameDelay;
     }
 
-    public void changeFunctionIndex(final int oldIndex, final int newIndex) {
+    public void changeIntermediateFunctionIndex(final int oldIndex, final int newIndex) {
         final Function function = intermediateFunctions.remove(oldIndex);
         intermediateFunctions.add(newIndex, function);
     }
