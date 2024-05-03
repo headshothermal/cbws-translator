@@ -123,6 +123,16 @@ public class Main {
         return input;
     }
 
+    public static boolean promptYesNoResponse(final String message) {
+        while (true) {
+            System.out.printf("%s (y/n): ", message);
+            final String input = SCANNER.next().toLowerCase();
+            System.out.println();
+            if (input.equals("y") || input.equals("yes")) return true;
+            if (input.equals("n") || input.equals("no")) return false;
+        }
+    }
+
     /**
      * Prompts the user to modify a first frame function.
      *

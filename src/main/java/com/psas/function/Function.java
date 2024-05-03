@@ -4,7 +4,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.psas.cbws.CBWS;
 import org.apache.commons.codec.DecoderException;
-import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -14,6 +13,7 @@ import java.util.regex.Pattern;
 
 import static com.psas.Main.promptFloatResponse;
 import static com.psas.Main.promptIntegerResponse;
+import static com.psas.Main.promptYesNoResponse;
 import static com.psas.cbws.CBWS.*;
 import static org.apache.commons.codec.binary.Hex.decodeHex;
 
@@ -59,8 +59,16 @@ public class Function {
     protected static final String HIT_VOLUME_AP_SIPHON = "55F2B8EE0004000000001C36EA8300049D803EF02420FDDB001058C7BA280001DCB677300004";
 
     /** Hex string for setting hit volume AP generation. */
-    protected static final String HIT_VOLUME_AP_GENERATION = "2576AB83001058C7BA280001DCB677300004";
+    protected static final String HIT_VOLUME_AP_GENERATION = "2576AB8300";
 
+    /** Hex string for setting hit volume AP generation override. */
+    protected static final String HIT_VOLUME_AP_GENERATION_OVERRIDE = "1058C7BA280001DCB677300004";
+
+    /** Hex string for setting hit volume AP generation default. */
+    protected static final String HIT_VOLUME_AP_GENERATION_DEFAULT = "040000";
+
+    /** Hex string for setting hit volume guard break. */
+    protected static final String HIT_VOLUME_GUARD_BREAK = "0D940001";
 
     /** Hex string for setting hit reaction to bounce. */
     protected static final String BOUNCE_REACTION = "1C6017E5";
@@ -288,7 +296,10 @@ public class Function {
 
         // Check for additional attributes on case-by-case basis.
         switch (label) {
-            case "EnableHitVolume" -> identifyHitReactionType();
+            case "EnableHitVolume" -> {
+                identifyHitReactionType();
+                identifyGuardBreak();
+            }
         }
 
         // Sort attributes by index.
@@ -433,6 +444,14 @@ public class Function {
         }
     }
 
+    /** Identifies guard break property. This is only relevant for hit volumes. */
+    private void identifyGuardBreak() {
+        final int startIndex = hex.indexOf(HIT_VOLUME_GUARD_BREAK) + HIT_VOLUME_GUARD_BREAK.length();
+        final String currentGuardBreakHex = hex.substring(startIndex, startIndex + 2);
+        if (currentGuardBreakHex.equals("01")) attributes.add(new Attribute("Guard Break", "True", startIndex));
+        else attributes.add(new Attribute("Guard Break", "False", startIndex));
+    }
+
     public final void modifyAttribute(final int index) {
         // Ensure index is within bounds.
         if (index < 0  || index >= attributes.size()) {
@@ -443,6 +462,7 @@ public class Function {
         // Check is index is a special case.
         switch (attributes.get(index).name()) {
             case "Hit Reaction" -> modifyHitReaction(index);
+            case "Guard Break" -> modifyGuardBreak();
             default -> modifyNumericalAttribute(index);
         }
 
@@ -528,5 +548,14 @@ public class Function {
         final String newReactionHex = String.format("%s%s", HIT_REACTION, reverseLookupTable.get(newReactionType));
 
         hex = hex.replaceFirst(currentReactionHex, newReactionHex);
+    }
+
+    private void modifyGuardBreak() {
+        final int startIndex = getAttributesWithName("Guard Break").get(0).index();
+        final boolean enable = promptYesNoResponse("Enable guard break?");
+        if (enable)
+            hex = hex.substring(0, startIndex) + "01" + hex.substring(startIndex + 2);
+        else
+            hex = hex.substring(0, startIndex) + "00" + hex.substring(startIndex + 2);
     }
 }
