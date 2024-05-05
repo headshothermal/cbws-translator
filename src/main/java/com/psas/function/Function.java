@@ -22,7 +22,9 @@ public class Function {
     protected static final String UNKNOWN = "Unknown", UNKNOWN_FUNCTION = "Unknown Function";
 
     /** Hex string for setting numerical attribute. */
-    protected static final String NUMERICAL_ATTRIBUTE1 = "77300004";
+
+    /** Hex string for setting hit volume AP generation override. */
+    protected static final String NUMERICAL_ATTRIBUTE1 = "1058C7BA280001DCB677300004";
 
     /** Hex string for setting numerical attribute. */
     protected static final String NUMERICAL_ATTRIBUTE2 = "90070004";
@@ -35,37 +37,34 @@ public class Function {
 
 
     /** Hex string for setting hit volume length. */
-    protected static final String HIT_VOLUME_LENGTH = "000D06D19B84001058C7BA280001DCB677300004";
+    protected static final String HIT_VOLUME_LENGTH = "000D06D19B8400" + NUMERICAL_ATTRIBUTE1;
 
     /** Hex string for setting hit volume height. */
-    protected static final String HIT_VOLUME_HEIGHT = "ECEE0E0C001058C7BA280001DCB677300004";
-    
+    protected static final String HIT_VOLUME_HEIGHT = "ECEE0E0C00" + NUMERICAL_ATTRIBUTE1;
+
     /** Hex string for setting hitbox angle. */
-    protected static final String HITBOX_ANGLE = "D00AFAA7001058C7BA280001DCB677300004";
+    protected static final String HITBOX_ANGLE = "D00AFAA700" + NUMERICAL_ATTRIBUTE1;
 
     /** Hex string for setting hit volume x offset. */
-    protected static final String HIT_VOLUME_X_OFFSET = "FE85D7C9001058C7BA280001DCB677300004";
+    protected static final String HIT_VOLUME_X_OFFSET = "FE85D7C900" + NUMERICAL_ATTRIBUTE1;
 
     /** Hex string for setting hit volume y offset. */
-    protected static final String HIT_VOLUME_Y_OFFSET = "8982E75F001058C7BA280001DCB677300004";
+    protected static final String HIT_VOLUME_Y_OFFSET = "8982E75F00" + NUMERICAL_ATTRIBUTE1;
 
     /** Hex string for setting hit volume horizontal knock back. */
-    protected static final String HIT_VOLUME_HORIZONTAL_KNOCK_BACK = "0D1D8184001058C7BA280001DCB677300004";
+    protected static final String HIT_VOLUME_HORIZONTAL_KNOCK_BACK = "0D1D818400" + NUMERICAL_ATTRIBUTE1;
 
     /** Hex string for setting hit volume vertical knock back. */
-    protected static final String HIT_VOLUME_VERTICAL_KNOCK_BACK = "5B965C69000400000000C6415221001058C7BA280001DCB677300004";
+    protected static final String HIT_VOLUME_VERTICAL_KNOCK_BACK = "5B965C69000400000000C641522100" + NUMERICAL_ATTRIBUTE1;
 
     /** Hex string for setting hit volume AP siphon. */
-    protected static final String HIT_VOLUME_AP_SIPHON = "55F2B8EE0004000000001C36EA8300049D803EF02420FDDB001058C7BA280001DCB677300004";
+    protected static final String HIT_VOLUME_AP_SIPHON = "55F2B8EE0004000000001C36EA8300049D803EF02420FDDB00" + NUMERICAL_ATTRIBUTE1;
 
     /** Hex string for setting hit volume AP generation. */
     protected static final String HIT_VOLUME_AP_GENERATION = "2576AB8300";
 
-    /** Hex string for setting hit volume AP generation override. */
-    protected static final String HIT_VOLUME_AP_GENERATION_OVERRIDE = "1058C7BA280001DCB677300004";
-
     /** Hex string for setting hit volume AP generation default. */
-    protected static final String HIT_VOLUME_AP_GENERATION_DEFAULT = "040000";
+    protected static final String HIT_VOLUME_AP_GENERATION_DEFAULT = "0400000000";
 
     /** Hex string for setting hit volume guard break. */
     protected static final String HIT_VOLUME_GUARD_BREAK = "0D940001";
@@ -128,7 +127,7 @@ public class Function {
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_HORIZONTAL_KNOCK_BACK, "Horizontal Knock Back");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_VERTICAL_KNOCK_BACK, "Vertical Knock Back");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_AP_SIPHON, "AP Siphon");
-        HEX_LOOKUP_TABLE.put(HIT_VOLUME_AP_GENERATION, "AP Generation");
+        HEX_LOOKUP_TABLE.put(HIT_VOLUME_AP_GENERATION + NUMERICAL_ATTRIBUTE1, "AP Generation");
 
         HEX_LOOKUP_TABLE.put(HORIZONTAL_VELOCITY, "Horizontal Velocity");
     }
@@ -299,6 +298,8 @@ public class Function {
             case "EnableHitVolume" -> {
                 identifyHitReactionType();
                 identifyGuardBreak();
+                if (getAttributesWithName("AP Generation").isEmpty())
+                    attributes.add(new Attribute("AP Generation", "Unknown", hex.indexOf(HIT_VOLUME_AP_GENERATION) + HIT_VOLUME_AP_GENERATION.length()));
             }
         }
 
@@ -463,6 +464,7 @@ public class Function {
         switch (attributes.get(index).name()) {
             case "Hit Reaction" -> modifyHitReaction(index);
             case "Guard Break" -> modifyGuardBreak();
+            case "AP Generation" -> modifyAPGeneration(index);
             default -> modifyNumericalAttribute(index);
         }
 
@@ -557,5 +559,23 @@ public class Function {
             hex = hex.substring(0, startIndex) + "01" + hex.substring(startIndex + 2);
         else
             hex = hex.substring(0, startIndex) + "00" + hex.substring(startIndex + 2);
+    }
+
+    private void modifyAPGeneration(final int index) {
+        if (!getAttributesWithName("AP Generation").get(0).value().equals("Unknown")) {
+            modifyNumericalAttribute(index);
+            return;
+        }
+        final float newValue = promptFloatResponse("Enter new value: ");
+        final String newAttributeValueHex = getFloatHex(newValue);
+        final int startIndex = hex.indexOf(HIT_VOLUME_AP_GENERATION) + HIT_VOLUME_AP_GENERATION.length();
+        if (!hex.startsWith(HIT_VOLUME_AP_GENERATION_DEFAULT, startIndex)) {
+            System.out.println("Unexpected byte sequence found. Unable to modify AP generation.");
+            return;
+        }
+        hex = hex.replaceFirst(
+                HIT_VOLUME_AP_GENERATION + HIT_VOLUME_AP_GENERATION_DEFAULT,
+                HIT_VOLUME_AP_GENERATION + NUMERICAL_ATTRIBUTE1 + newAttributeValueHex
+        );
     }
 }
