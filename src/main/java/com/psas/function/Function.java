@@ -22,8 +22,6 @@ public class Function {
     protected static final String UNKNOWN = "Unknown", UNKNOWN_FUNCTION = "Unknown Function";
 
     /** Hex string for setting numerical attribute. */
-
-    /** Hex string for setting hit volume AP generation override. */
     protected static final String NUMERICAL_ATTRIBUTE1 = "1058C7BA280001DCB677300004";
 
     /** Hex string for setting numerical attribute. */
@@ -36,8 +34,14 @@ public class Function {
     protected static final String HIT_REACTION = "48A40004";
 
 
+    /** Hex string for setting custom knock back. */
+    protected static final String CUSTOM_KNOCK_BACK = "39669D3A0004";
+    protected static final String ENABLE_CUSTOM_KNOCK_BACK = "9BCC9A4A";
+
+
     /** Hex string for setting hit volume length. */
-    protected static final String HIT_VOLUME_LENGTH = "000D06D19B8400" + NUMERICAL_ATTRIBUTE1;
+    protected static final String HIT_VOLUME_LENGTH_1 = "000D06D19B8400" + NUMERICAL_ATTRIBUTE1;
+    protected static final String HIT_VOLUME_LENGTH_2 = "11F7129500" + NUMERICAL_ATTRIBUTE1;
 
     /** Hex string for setting hit volume height. */
     protected static final String HIT_VOLUME_HEIGHT = "ECEE0E0C00" + NUMERICAL_ATTRIBUTE1;
@@ -55,7 +59,7 @@ public class Function {
     protected static final String HIT_VOLUME_HORIZONTAL_KNOCK_BACK = "0D1D818400" + NUMERICAL_ATTRIBUTE1;
 
     /** Hex string for setting hit volume vertical knock back. */
-    protected static final String HIT_VOLUME_VERTICAL_KNOCK_BACK = "5B965C69000400000000C641522100" + NUMERICAL_ATTRIBUTE1;
+    protected static final String HIT_VOLUME_VERTICAL_KNOCK_BACK = "C641522100" + NUMERICAL_ATTRIBUTE1;
 
     /** Hex string for setting hit volume AP siphon. */
     protected static final String HIT_VOLUME_AP_SIPHON = "55F2B8EE0004000000001C36EA8300049D803EF02420FDDB00" + NUMERICAL_ATTRIBUTE1;
@@ -68,6 +72,16 @@ public class Function {
 
     /** Hex string for setting hit volume guard break. */
     protected static final String HIT_VOLUME_GUARD_BREAK = "0D940001";
+    
+    /** Hex string for setting projectile lifetime. */
+    protected static final String PROJECTILE_LIFETIME = "7CD628C00001005CC250E5000100E7B2912B000101098D71AD000101D069FDDC0001014BA2338A000101C49152DE00" + NUMERICAL_ATTRIBUTE1;
+
+
+    protected static final String BOOLEAN_ATTRIBUTE1 = "72676587D44E9E00" + NUMERICAL_ATTRIBUTE1;
+
+
+    /** Hex string for setting slam down bounce enable. */
+    protected static final String SLAM_DOWN_BOUNCE_ENABLE = "D04D6798";
 
     /** Hex string for setting hit reaction to bounce. */
     protected static final String BOUNCE_REACTION = "1C6017E5";
@@ -87,8 +101,11 @@ public class Function {
     /** Hex string for setting hit reaction to full launch. */
     protected static final String FULL_LAUNCH_REACTION = "2FC92C27";
 
-    /** Hex string for setting hit reaction to light reaction. */
-    protected static final String LIGHT_REACTION_REACTION = "B0A526B0"; // C572FE3F
+    /** Hex string for setting hit reaction to generic light reaction. */
+    protected static final String GENERIC_LIGHT_REACTION = "C572FE3F";
+
+    /** Hex string for setting hit reaction to light reaction from overhead attack. */
+    protected static final String LIGHT_REACTION_OVERHEAD = "B0A526B0";
 
     /** Hex string for setting hit reaction to mini launch lift. */
     protected static final String MINI_LAUNCH_LIFT_REACTION = "DDA0DDAE";
@@ -100,7 +117,7 @@ public class Function {
     protected static final String SHOCK_STUN_REACTION = "E9B0D618";
 
     /** Hex string for setting hit reaction to slam down flatten. */
-    protected static final String SLAM_DOWN_REACTION = "45856983";
+    protected static final String SLAM_DOWN_REACTION_1 = "45856983";
 
     /** Hex string for setting hit reaction to stagger buttdrop. */
     protected static final String STAGGER_BUTTDROP_REACTION = "E4D46FCD";
@@ -109,18 +126,29 @@ public class Function {
     protected static final String STAGGER_KNEEL_REACTION = "69118031";
 
     /** Hex string for setting hit reaction to twitch. */
-    protected static final String TWITCH_REACTION = "807BBD01";
+    protected static final String TWITCH_REACTION = "CE2C3EE4";
+
+    /** Hex string for setting no reaction. */
+    protected static final String NO_REACTION = "807BBD01";
+
+    /** Hex string for setting Jak Blaster reaction. */
+    protected static final String JAK_BLASTER_REACTION = "A89843DA";
+
     
     /** Hex string for setting horizontal velocity. */
-    protected static final String HORIZONTAL_VELOCITY = "B50EE7F164D7605E001058C7BA280001DCB677300004";
+    protected static final String HORIZONTAL_VELOCITY_1 = "B50EE7F164D7605E001058C7BA280001DCB677300004";
+
+    /** Hex string for setting vertical velocity. */
+    protected static final String VERTICAL_VELOCITY_1 = "B50EE7F164D7605E00040000000013D050C8001058C7BA280001DCB677300004";
 
 
     /** Lookup table for attribute hex values. */
     protected static final BiMap<String, String> HEX_LOOKUP_TABLE = HashBiMap.create();
     // Populate lookup table.
     static {
-        HEX_LOOKUP_TABLE.put(HIT_VOLUME_LENGTH, "Length");
-        HEX_LOOKUP_TABLE.put(HIT_VOLUME_HEIGHT, "Height");
+        HEX_LOOKUP_TABLE.put(HIT_VOLUME_LENGTH_1, "Hit Volume Length 1");
+        HEX_LOOKUP_TABLE.put(HIT_VOLUME_LENGTH_2, "Hit Volume Length 2");
+        HEX_LOOKUP_TABLE.put(HIT_VOLUME_HEIGHT, "Hit Volume Height 1");
         HEX_LOOKUP_TABLE.put(HITBOX_ANGLE, "Angle");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_X_OFFSET, "X Offset");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_Y_OFFSET, "Y Offset");
@@ -128,8 +156,12 @@ public class Function {
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_VERTICAL_KNOCK_BACK, "Vertical Knock Back");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_AP_SIPHON, "AP Siphon");
         HEX_LOOKUP_TABLE.put(HIT_VOLUME_AP_GENERATION + NUMERICAL_ATTRIBUTE1, "AP Generation");
+        HEX_LOOKUP_TABLE.put(PROJECTILE_LIFETIME, "Projectile Lifetime (Seconds)");
 
-        HEX_LOOKUP_TABLE.put(HORIZONTAL_VELOCITY, "Horizontal Velocity");
+        HEX_LOOKUP_TABLE.put(HORIZONTAL_VELOCITY_1, "Horizontal Velocity 1");
+        HEX_LOOKUP_TABLE.put(VERTICAL_VELOCITY_1, "Vertical Velocity 1");
+
+        HEX_LOOKUP_TABLE.put(BOOLEAN_ATTRIBUTE1, "Boolean Attribute 1");
     }
 
     /** Lookup table for hit reaction hex values. */
@@ -142,14 +174,17 @@ public class Function {
         REACTION_LOOKUP_TABLE.put(EJECT_SPIRAL_REACTION, "Eject Spiral");
         REACTION_LOOKUP_TABLE.put(EJECT_TORNADO_REACTION, "Eject Tornado");
         REACTION_LOOKUP_TABLE.put(FULL_LAUNCH_REACTION, "Full Launch");
-        REACTION_LOOKUP_TABLE.put(LIGHT_REACTION_REACTION, "Light Reaction");
+        REACTION_LOOKUP_TABLE.put(LIGHT_REACTION_OVERHEAD, "Light Reaction Overhead");
+        REACTION_LOOKUP_TABLE.put(GENERIC_LIGHT_REACTION, "Generic Light Reaction");
         REACTION_LOOKUP_TABLE.put(MINI_LAUNCH_LIFT_REACTION, "Mini Launch Lift");
         REACTION_LOOKUP_TABLE.put(MINI_LAUNCH_SWEEP_REACTION, "Mini Launch Sweep");
         REACTION_LOOKUP_TABLE.put(SHOCK_STUN_REACTION, "Shock Stun");
-        REACTION_LOOKUP_TABLE.put(SLAM_DOWN_REACTION, "Slam Down");
-        REACTION_LOOKUP_TABLE.put(STAGGER_BUTTDROP_REACTION, "Stagger Buttdrop");
+        REACTION_LOOKUP_TABLE.put(SLAM_DOWN_REACTION_1, "Slam Down");
+        REACTION_LOOKUP_TABLE.put(STAGGER_BUTTDROP_REACTION, "Stagger Butt-drop");
         REACTION_LOOKUP_TABLE.put(STAGGER_KNEEL_REACTION, "Stagger Kneel");
         REACTION_LOOKUP_TABLE.put(TWITCH_REACTION, "Twitch");
+        REACTION_LOOKUP_TABLE.put(NO_REACTION, "No Reaction");
+        REACTION_LOOKUP_TABLE.put(JAK_BLASTER_REACTION, "Jak Blaster");
     }
 
     /**
@@ -295,11 +330,13 @@ public class Function {
 
         // Check for additional attributes on case-by-case basis.
         switch (label) {
-            case "EnableHitVolume" -> {
+            // Hit volumes, projectiles, & grabs
+            case "EnableHitVolume", "SpawnProjectile", "UnlockPuppets" -> {
                 identifyHitReactionType();
-                identifyGuardBreak();
+                if (!label.equals("UnlockPuppets")) identifyGuardBreak();
                 if (getAttributesWithName("AP Generation").isEmpty())
                     attributes.add(new Attribute("AP Generation", "Unknown", hex.indexOf(HIT_VOLUME_AP_GENERATION) + HIT_VOLUME_AP_GENERATION.length()));
+                identifyCustomKnockBack();
             }
         }
 
@@ -395,14 +432,15 @@ public class Function {
             final String attributeName = "Hit Reaction";
             final String reactionType = REACTION_LOOKUP_TABLE.get(reactionHex);
             if (reactionType != null) {
-                if (reactionHex.equals(SLAM_DOWN_REACTION)) {
+                if (reactionHex.equals(SLAM_DOWN_REACTION_1) || reactionHex.equals(GENERIC_LIGHT_REACTION)) {
                     // Determine slam-down bounce/flatten.
                     final int slamDownStartIndex = reactionEndIndex + 12;
                     final String slamDownHex = hex.substring(slamDownStartIndex, slamDownStartIndex + 8);
-                    if (slamDownHex.equals("00000000"))
-                        attributes.add(new Attribute(attributeName, String.format(reactionType, "Flatten"), startIndex));
-                    else
-                        attributes.add(new Attribute(attributeName, String.format(reactionType, "Bounce"), startIndex));
+                    if (slamDownHex.equals("00000000")  && !reactionHex.equals(GENERIC_LIGHT_REACTION))
+                        attributes.add(new Attribute(attributeName, reactionType + " - Flatten", startIndex));
+                    else if (!reactionHex.equals(GENERIC_LIGHT_REACTION))
+                        attributes.add(new Attribute(attributeName, reactionType + " - Bounce", startIndex));
+                    else attributes.add(new Attribute(attributeName, reactionType, startIndex));
                 }
                 else attributes.add(new Attribute(attributeName, reactionType, startIndex));
             }
@@ -412,6 +450,14 @@ public class Function {
             // If attack causes multiple reactions, add them all.
             substringIndex = reactionEndIndex;
         }
+    }
+
+    private void identifyCustomKnockBack() {
+        final int startIndex = hex.indexOf(CUSTOM_KNOCK_BACK) + CUSTOM_KNOCK_BACK.length();
+        final String currentCustomKnockBackHex = hex.substring(startIndex, startIndex + 8);
+        if (currentCustomKnockBackHex.equals(ENABLE_CUSTOM_KNOCK_BACK))
+            attributes.add(new Attribute("Custom Knock Back", "True", startIndex));
+        else attributes.add(new Attribute("Custom Knock Back", "False", startIndex));
     }
 
     private void identifyStringAttributes() {
@@ -547,6 +593,20 @@ public class Function {
 
         // Get hex value for new hit reaction.
         final String newReactionType = hitReactions.get(selection);
+        if (newReactionType.equals("Slam Down") || newReactionType.equals("Generic Light Reaction")) {
+            // Determine slam-down bounce/flatten.
+            final boolean bounce = promptYesNoResponse("Enable bounce?");
+
+            // Four bytes define the hit reaction. A byte is two characters
+            final int startIndex = attributes.get(index).index();
+            final int reactionStartIndex = startIndex + HIT_REACTION.length();
+            final int reactionEndIndex = reactionStartIndex + 8;
+            final int slamDownStartIndex = reactionEndIndex + 12;
+            if (bounce)
+                hex = hex.substring(0, slamDownStartIndex) + SLAM_DOWN_BOUNCE_ENABLE + hex.substring(slamDownStartIndex + 8);
+            else
+                hex = hex.substring(0, slamDownStartIndex) + "00000000" + hex.substring(slamDownStartIndex + 8);
+        }
         final String newReactionHex = String.format("%s%s", HIT_REACTION, reverseLookupTable.get(newReactionType));
 
         hex = hex.replaceFirst(currentReactionHex, newReactionHex);
