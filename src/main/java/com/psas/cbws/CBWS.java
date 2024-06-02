@@ -404,7 +404,7 @@ public class CBWS {
     private void updateHex() {
         final StringBuilder builder = new StringBuilder(getFileHeader());
         for (final Function function : intermediateFunctions) builder.append(function.getHex());
-        builder.append(finalFrameFunctions.get(0).getHex());
+        if (!finalFrameFunctions.isEmpty()) builder.append(finalFrameFunctions.get(0).getHex());
         for (final Function function : firstFrameFunctions) builder.append(function.getHex());
         for (int i = 1; i < finalFrameFunctions.size(); i++) builder.append(finalFrameFunctions.get(i).getHex());
         for (final Function function : impactFrameFunctions) builder.append(function.getHex());
